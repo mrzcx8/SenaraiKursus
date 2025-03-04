@@ -399,6 +399,7 @@
             }
             
             loadingElement.style.display = 'block';
+            loadingElement.textContent = 'Memuat data...';
             
             Papa.parse(SHEET_URL, {
                 download: true,
@@ -434,7 +435,7 @@
             });
         }
         
-                function processEvents(events) {
+        function processEvents(events) {
             // Handle empty or invalid data
             if (!events || events.length === 0) {
                 console.error("No events data available");
@@ -597,9 +598,6 @@
                     <a href="${registrationUrl}" target="_blank" class="register-btn">Daftar Sekarang</a>
                 </div>
             `;
-            
-            return card;
-        }
             
             return card;
         }

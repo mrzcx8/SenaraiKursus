@@ -733,7 +733,7 @@
             const description = event.description || 'Tiada deskripsi tersedia';
             const registrationUrl = event.registrationUrl || '#';
             const capacity = event.capacity || 'Terhad';
-            const closeDate = event.closeDate ? formatDate(event.closeDate) : 'TBA';
+            const closeDate = event.closeDate ? formatDate(event.closeDate) : 'Sehingga tempat penuh';
             
             // Add a status badge if status is provided
             let statusHtml = '';
@@ -752,9 +752,10 @@
                     <span class="event-capacity">${capacity}</span>
                 </div>
                 <div class="event-info">
-                    <p><i>📅</i> ${date}</p>
-                    <p><i>⏰</i> ${time}</p>
-                    <p><i>📍</i> ${location}</p>
+                    <p><i>📅</i> Tarikh: ${date}</p>
+                    <p><i>⏰</i> Masa: ${time}</p>
+                    <p><i>📍</i> Lokasi: ${location}</p>
+                    <p><i>🔔</i> Tarikh Tutup: ${closeDate}</p>
                 </div>
                 <div class="event-price">${price}</div>
                 <p class="event-desc">${description}</p>

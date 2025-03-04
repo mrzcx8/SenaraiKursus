@@ -136,10 +136,36 @@
         
         .event-image {
             height: 160px;
-            background-color: #ddd;
+            background-color: #f1f1f1;
             background-size: cover;
             background-position: center;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
+        .closing-date {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .event-requirements {
+            margin-top: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 3px solid var(--primary-color);
+            border-radius: 3px;
+            font-size: 0.9rem;
         }
         
         .event-content {
@@ -213,6 +239,38 @@
             background-color: #e67e22;
         }
         
+        .requirements {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .requirements h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .requirements ul {
+            list-style-type: none;
+            padding-left: 5px;
+        }
+        
+        .requirements li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .requirements li:before {
+            content: "✓";
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
         .no-events {
             grid-column: 1 / -1;
             text-align: center;
@@ -266,6 +324,18 @@
     </header>
     
     <div class="container">
+        <!-- Maklumat umum sahaja - syarat spesifik akan ditunjukkan di setiap kad event -->
+        <div class="requirements">
+            <h2>Maklumat Umum:</h2>
+            <ul>
+                <li>Semua program adalah percuma tetapi memerlukan pendaftaran awal.</li>
+                <li>Peserta perlu mendaftar melalui borang pendaftaran sebelum tarikh tutup.</li>
+                <li>Tempat adalah terhad untuk setiap program.</li>
+                <li>Setiap program mungkin mempunyai syarat penyertaan yang berbeza.</li>
+                <li>Lihat maklumat terperinci dan syarat penyertaan di setiap program.</li>
+            </ul>
+        </div>
+        
         <div class="filter-container">
             <h2 class="filter-title">Filter mengikut kategori:</h2>
             <div class="category-filters" id="categoryFilters">
@@ -290,6 +360,9 @@
         // Change format from /pubhtml to /pub?output=csv
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQh9oseGP-l6MnaLcY8fdaNs6xJA747DA0fTJ5itGIRrPWip7p01zMUo1ufWCGGq7WGA0_VsfmRPkjt/pub?output=csv';
         
+        // Default image to use when image URLs are missing or invalid
+        const DEFAULT_IMAGE = 'https://placehold.co/400x320/f1f1f1/999999?text=Tiada+Gambar';
+        
         // Sample event data for demonstration
         const sampleEvents = [
             {
@@ -300,8 +373,11 @@
                 location: "Online (Zoom)",
                 description: "Belajar asas-asas digital marketing untuk perniagaan anda. Topik meliputi SEO, Media Sosial, Email Marketing dan Google Ads.",
                 price: "Percuma",
-                image: "https://i.imgur.com/QAaLMp6.jpg",
-                registrationUrl: "https://forms.google.com/xyz"
+                image: "https://placehold.co/400x320/f1f1f1/999999?text=Digital+Marketing",
+                registrationUrl: "https://forms.google.com/xyz",
+                status: "open",
+                closingDate: "2025-03-05",
+                requirements: "Pengalaman asas dalam pemasaran digital. Perlu membawa komputer riba sendiri. Peserta akan menerima e-sijil setelah selesai bengkel."
             },
             {
                 title: "Seminar Motivasi Kejayaan Dalam Bisnes",
@@ -311,8 +387,11 @@
                 location: "Hotel Grand Millennium, KL",
                 description: "Seminar motivasi khas untuk usahawan yang ingin mencapai kejayaan dalam perniagaan. Dapatkan tips dari usahawan berjaya.",
                 price: "Percuma",
-                image: "https://i.imgur.com/ExyPGld.jpg",
-                registrationUrl: "https://forms.google.com/abc"
+                image: "https://placehold.co/400x320/f1f1f1/999999?text=Motivasi",
+                registrationUrl: "https://forms.google.com/abc",
+                status: "open",
+                closingDate: "2025-03-10",
+                requirements: "Terbuka kepada semua. Peserta perlu membawa kad pengenalan untuk pendaftaran. Tempat duduk adalah terhad kepada 100 orang sahaja."
             },
             {
                 title: "Webinar: Asas Perakaunan Untuk Peniaga Kecil",
@@ -322,8 +401,11 @@
                 location: "Online (Microsoft Teams)",
                 description: "Belajar cara menguruskan kewangan perniagaan anda dengan betul. Pengurusan aliran tunai, rekod perbelanjaan dan asas cukai.",
                 price: "Percuma",
-                image: "https://i.imgur.com/iMzUaG4.jpg",
-                registrationUrl: "https://forms.google.com/def"
+                image: "https://placehold.co/400x320/f1f1f1/999999?text=Perakaunan",
+                registrationUrl: "https://forms.google.com/def",
+                status: "open",
+                closingDate: "2025-03-18",
+                requirements: "Perlu mempunyai perniagaan sendiri atau berminat untuk memulakan perniagaan. Peserta akan menerima templat excel percuma untuk pengurusan kewangan."
             }
         ];
         
@@ -529,37 +611,6 @@
             // Log event details for debugging
             console.log("Creating card for event:", event.title);
             
-            // Handle images - FIXED VERSION
-            let imageUrl = '/api/placeholder/400/320'; // Default placeholder
-            
-            try {
-                // Directly check and log image value
-                console.log(`Raw image value for "${event.title}":`, event.image);
-                
-                // Check if event has image URL
-                if (event.image) {
-                    // First convert to string if not already
-                    let imgStr = String(event.image).trim();
-                    
-                    if (imgStr) {
-                        // If image is a complete URL starting with http/https, use it directly
-                        if (imgStr.toLowerCase().startsWith('http')) {
-                            console.log(`Using URL directly: ${imgStr}`);
-                            imageUrl = imgStr;
-                        } else {
-                            // For non-HTTP URLs, try to use them but fall back to placeholder
-                            console.log(`Non-HTTP URL: ${imgStr}, using placeholder`);
-                            imageUrl = '/api/placeholder/400/320';
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error(`Error processing image for ${event.title}:`, e);
-            }
-            
-            // Double check final imageUrl
-            console.log(`Final image URL for "${event.title}":`, imageUrl);
-            
             // Handle missing data with safe defaults
             const title = event.title || 'Tiada Tajuk';
             const category = event.category || 'Umum';
@@ -569,29 +620,66 @@
             const price = event.price || 'Percuma';
             const description = event.description || 'Tiada deskripsi tersedia';
             const registrationUrl = event.registrationUrl || '#';
+            const closingDate = event.closingDate ? formatDate(event.closingDate) : 'TBA';
+            const requirements = event.requirements || 'Tiada syarat khas. Terbuka kepada semua.';
+            
+            // IMPROVED IMAGE HANDLING
+            // Create the image element first
+            const imageElement = document.createElement('div');
+            imageElement.className = 'event-image';
             
             // Add a status badge if status is provided
-            let statusBadge = '';
+            // Add status badge if status is provided
             if (event.status && event.status.toLowerCase() === 'open') {
-                statusBadge = '<span class="event-status open">Open</span>';
+                const statusBadge = document.createElement('span');
+                statusBadge.className = 'event-status open';
+                statusBadge.textContent = 'Open';
+                imageElement.appendChild(statusBadge);
             }
             
-            // Create a separate img element for better error handling
-            const imgElement = document.createElement('div');
-            imgElement.className = 'event-image';
-            imgElement.style.backgroundImage = `url('${imageUrl}')`;
+            // Add closing date badge
+            const closingBadge = document.createElement('span');
+            closingBadge.className = 'closing-date';
+            closingBadge.textContent = `Tutup: ${closingDate}`;
+            imageElement.appendChild(closingBadge);
             
-            // Add status badge if any
-            if (statusBadge) {
-                const statusDiv = document.createElement('div');
-                statusDiv.innerHTML = statusBadge;
-                imgElement.appendChild(statusDiv.firstChild);
+            // Set up the image with better error handling
+            let imageUrl = DEFAULT_IMAGE;
+            
+            if (event.image && String(event.image).trim()) {
+                // Try to use the provided image URL
+                const imgUrl = String(event.image).trim();
+                
+                if (imgUrl.toLowerCase().startsWith('http')) {
+                    // Create a temporary image to test if it loads
+                    const tempImg = new Image();
+                    
+                    tempImg.onload = function() {
+                        // If image loads successfully, update the background
+                        imageElement.style.backgroundImage = `url('${imgUrl}')`;
+                    };
+                    
+                    tempImg.onerror = function() {
+                        // If image fails to load, use default
+                        console.warn(`Image failed to load: ${imgUrl}`);
+                        imageElement.style.backgroundImage = `url('${DEFAULT_IMAGE}')`;
+                    };
+                    
+                    // Start loading the image
+                    tempImg.src = imgUrl;
+                    
+                    // Initial setting (might be replaced if image fails)
+                    imageUrl = imgUrl;
+                }
             }
             
-            // Create content div
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'event-content';
-            contentDiv.innerHTML = `
+            // Set initial background image
+            imageElement.style.backgroundImage = `url('${imageUrl}')`;
+            
+            // Create content element
+            const contentElement = document.createElement('div');
+            contentElement.className = 'event-content';
+            contentElement.innerHTML = `
                 <span class="event-category">${category}</span>
                 <h3 class="event-title">${title}</h3>
                 <div class="event-info">
@@ -601,12 +689,15 @@
                 </div>
                 <div class="event-price">${price}</div>
                 <p class="event-desc">${description}</p>
+                <div class="event-requirements">
+                    <strong>Syarat Penyertaan:</strong> ${requirements}
+                </div>
                 <a href="${registrationUrl}" target="_blank" class="register-btn">Daftar Sekarang</a>
             `;
             
-            // Add the elements to the card
-            card.appendChild(imgElement);
-            card.appendChild(contentDiv);
+            // Add elements to card
+            card.appendChild(imageElement);
+            card.appendChild(contentElement);
             
             return card;
         }
@@ -663,17 +754,6 @@
         document.querySelector('.category-btn[data-category="semua"]').addEventListener('click', () => {
             setActiveCategory('semua');
         });
-        
-        // Add error event listener to catch image loading errors
-        window.addEventListener('error', function(e) {
-            // Check if the error is from an image
-            if (e.target.tagName === 'IMG') {
-                console.error('Image failed to load:', e.target.src);
-                // Replace with placeholder
-                e.target.src = '/api/placeholder/400/320';
-                return true; // Prevent default error handling
-            }
-        }, true);
     </script>
 </body>
 </html>

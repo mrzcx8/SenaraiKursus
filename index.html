@@ -300,7 +300,7 @@
                 location: "Online (Zoom)",
                 description: "Belajar asas-asas digital marketing untuk perniagaan anda. Topik meliputi SEO, Media Sosial, Email Marketing dan Google Ads.",
                 price: "Percuma",
-                image: "/api/placeholder/400/320",
+                image: "https://i.imgur.com/QAaLMp6.jpg",
                 registrationUrl: "https://forms.google.com/xyz"
             },
             {
@@ -311,7 +311,7 @@
                 location: "Hotel Grand Millennium, KL",
                 description: "Seminar motivasi khas untuk usahawan yang ingin mencapai kejayaan dalam perniagaan. Dapatkan tips dari usahawan berjaya.",
                 price: "Percuma",
-                image: "/api/placeholder/400/320",
+                image: "https://i.imgur.com/ExyPGld.jpg",
                 registrationUrl: "https://forms.google.com/abc"
             },
             {
@@ -322,41 +322,8 @@
                 location: "Online (Microsoft Teams)",
                 description: "Belajar cara menguruskan kewangan perniagaan anda dengan betul. Pengurusan aliran tunai, rekod perbelanjaan dan asas cukai.",
                 price: "Percuma",
-                image: "/api/placeholder/400/320",
+                image: "https://i.imgur.com/iMzUaG4.jpg",
                 registrationUrl: "https://forms.google.com/def"
-            },
-            {
-                title: "Workshop Asas Programming dengan Python",
-                category: "IT",
-                date: "2025-03-25",
-                time: "09:00 - 17:00",
-                location: "Menara PGRM, KL",
-                description: "Belajar asas pengaturcaraan menggunakan Python. Sesuai untuk pemula yang ingin mempelajari bidang pengaturcaraan.",
-                price: "Percuma",
-                image: "/api/placeholder/400/320",
-                registrationUrl: "https://forms.google.com/ghi"
-            },
-            {
-                title: "Kursus Asas Membuat Kek dan Pastri",
-                category: "Bakery",
-                date: "2025-04-01",
-                time: "10:00 - 15:00",
-                location: "Pusat Komuniti Taman Melawati",
-                description: "Belajar asas membuat kek dan pastri daripada chef profesional. Teknik, bahan dan tips untuk hasil yang sempurna.",
-                price: "Percuma",
-                image: "/api/placeholder/400/320",
-                registrationUrl: "https://forms.google.com/jkl"
-            },
-            {
-                title: "Seminar Pelaburan Hartanah",
-                category: "Bisnes",
-                date: "2025-04-05",
-                time: "13:00 - 17:00",
-                location: "Dewan Perdana, Putrajaya",
-                description: "Belajar strategi pelaburan hartanah yang berkesan. Analisis pasaran, pengurusan risiko dan pembiayaan.",
-                price: "Percuma",
-                image: "/api/placeholder/400/320",
-                registrationUrl: "https://forms.google.com/mno"
             }
         ];
         
@@ -381,6 +348,7 @@
         });
         
         function initApp() {
+            console.log("Initializing app...");
             if (SHEET_URL) {
                 fetchEvents();
             } else {
@@ -401,13 +369,25 @@
             loadingElement.style.display = 'block';
             loadingElement.textContent = 'Memuat data...';
             
-            Papa.parse(SHEET_URL, {
+            console.log("Fetching data from:", SHEET_URL);
+            
+            // Add cache busting parameter to avoid caching issues
+            const cacheBuster = new Date().getTime();
+            const urlWithCacheBuster = SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + '_cb=' + cacheBuster;
+            
+            Papa.parse(urlWithCacheBuster, {
                 download: true,
                 header: true,
                 dynamicTyping: true,
                 skipEmptyLines: true,
                 complete: function(results) {
                     console.log("Data berhasil diambil:", results);
+                    
+                    // Debug: Display raw field values
+                    if (results.data && results.data.length > 0) {
+                        console.log("Sample data record:", results.data[0]);
+                        console.log("Field names:", results.meta.fields);
+                    }
                     
                     // Jika tiada data atau error
                     if (!results.data || results.data.length === 0) {
@@ -547,23 +527,38 @@
             card.className = 'event-card';
             
             // Log event details for debugging
-            console.log("Creating card for event:", event);
+            console.log("Creating card for event:", event.title);
             
-            // Handle images
+            // Handle images - FIXED VERSION
             let imageUrl = '/api/placeholder/400/320'; // Default placeholder
             
-            // Check if event has image URL
-            if (event.image && event.image.trim()) {
-                // If image is a complete URL starting with http/https, use it directly
-                if (event.image.toLowerCase().startsWith('http')) {
-                    imageUrl = event.image;
-                } 
-                // If it's a relative path or filename, you might need to adjust this
-                // based on where your images are stored
-                else {
-                    imageUrl = '/api/placeholder/400/320'; // Use placeholder if not a valid URL
+            try {
+                // Directly check and log image value
+                console.log(`Raw image value for "${event.title}":`, event.image);
+                
+                // Check if event has image URL
+                if (event.image) {
+                    // First convert to string if not already
+                    let imgStr = String(event.image).trim();
+                    
+                    if (imgStr) {
+                        // If image is a complete URL starting with http/https, use it directly
+                        if (imgStr.toLowerCase().startsWith('http')) {
+                            console.log(`Using URL directly: ${imgStr}`);
+                            imageUrl = imgStr;
+                        } else {
+                            // For non-HTTP URLs, try to use them but fall back to placeholder
+                            console.log(`Non-HTTP URL: ${imgStr}, using placeholder`);
+                            imageUrl = '/api/placeholder/400/320';
+                        }
+                    }
                 }
+            } catch (e) {
+                console.error(`Error processing image for ${event.title}:`, e);
             }
+            
+            // Double check final imageUrl
+            console.log(`Final image URL for "${event.title}":`, imageUrl);
             
             // Handle missing data with safe defaults
             const title = event.title || 'Tiada Tajuk';
@@ -581,23 +576,37 @@
                 statusBadge = '<span class="event-status open">Open</span>';
             }
             
-            card.innerHTML = `
-                <div class="event-image" style="background-image: url('${imageUrl}')">
-                    ${statusBadge}
+            // Create a separate img element for better error handling
+            const imgElement = document.createElement('div');
+            imgElement.className = 'event-image';
+            imgElement.style.backgroundImage = `url('${imageUrl}')`;
+            
+            // Add status badge if any
+            if (statusBadge) {
+                const statusDiv = document.createElement('div');
+                statusDiv.innerHTML = statusBadge;
+                imgElement.appendChild(statusDiv.firstChild);
+            }
+            
+            // Create content div
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'event-content';
+            contentDiv.innerHTML = `
+                <span class="event-category">${category}</span>
+                <h3 class="event-title">${title}</h3>
+                <div class="event-info">
+                    <p><i>📅</i> ${date}</p>
+                    <p><i>⏰</i> ${time}</p>
+                    <p><i>📍</i> ${location}</p>
                 </div>
-                <div class="event-content">
-                    <span class="event-category">${category}</span>
-                    <h3 class="event-title">${title}</h3>
-                    <div class="event-info">
-                        <p><i>📅</i> ${date}</p>
-                        <p><i>⏰</i> ${time}</p>
-                        <p><i>📍</i> ${location}</p>
-                    </div>
-                    <div class="event-price">${price}</div>
-                    <p class="event-desc">${description}</p>
-                    <a href="${registrationUrl}" target="_blank" class="register-btn">Daftar Sekarang</a>
-                </div>
+                <div class="event-price">${price}</div>
+                <p class="event-desc">${description}</p>
+                <a href="${registrationUrl}" target="_blank" class="register-btn">Daftar Sekarang</a>
             `;
+            
+            // Add the elements to the card
+            card.appendChild(imgElement);
+            card.appendChild(contentDiv);
             
             return card;
         }
@@ -606,31 +615,65 @@
             if (!dateStr) return 'TBA';
             
             try {
+                // Check if dateStr is already a Date object
+                if (dateStr instanceof Date) {
+                    return dateStr.toLocaleDateString('ms-MY', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                }
+                
+                // Try to parse the date string
                 const date = new Date(dateStr);
+                
+                // Check if date is valid
+                if (isNaN(date.getTime())) {
+                    console.warn(`Invalid date: ${dateStr}`);
+                    return dateStr; // Return the original string if invalid
+                }
+                
                 return date.toLocaleDateString('ms-MY', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric'
                 });
             } catch (e) {
+                console.error(`Error formatting date: ${dateStr}`, e);
                 return dateStr;
             }
         }
         
         function formatDateTime(date) {
-            return date.toLocaleDateString('ms-MY', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            try {
+                return date.toLocaleDateString('ms-MY', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                console.error("Error formatting datetime:", e);
+                return date.toString();
+            }
         }
         
         // Initialize by setting "All" category as active
         document.querySelector('.category-btn[data-category="semua"]').addEventListener('click', () => {
             setActiveCategory('semua');
         });
+        
+        // Add error event listener to catch image loading errors
+        window.addEventListener('error', function(e) {
+            // Check if the error is from an image
+            if (e.target.tagName === 'IMG') {
+                console.error('Image failed to load:', e.target.src);
+                // Replace with placeholder
+                e.target.src = '/api/placeholder/400/320';
+                return true; // Prevent default error handling
+            }
+        }, true);
     </script>
 </body>
 </html>

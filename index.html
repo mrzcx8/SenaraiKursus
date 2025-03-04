@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="600"> <!-- Auto-refresh every 10 minutes (600 seconds) -->
     <title>Senarai Event & Seminar Percuma</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
@@ -114,11 +115,31 @@
             transform: translateY(-5px);
         }
         
+        .event-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .event-status.open {
+            background-color: #27ae60;
+        }
+        
+        .event-status.closed {
+            background-color: #e74c3c;
+        }
+        
         .event-image {
             height: 160px;
             background-color: #ddd;
             background-size: cover;
             background-position: center;
+            position: relative;
         }
         
         .event-content {
@@ -265,9 +286,9 @@
     </div>
     
     <script>
-        // URL Google Sheets CSV - update with your actual Google Sheets published CSV URL
-        // For demo, we'll create sample data
-        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQh9oseGP-l6MnaLcY8fdaNs6xJA747DA0fTJ5itGIRrPWip7p01zMUo1ufWCGGq7WGA0_VsfmRPkjt/pub?output=csv'; // Replace with your Google Sheets published CSV URL
+        // URL Google Sheets CSV - Google Sheets published as CSV URL
+        // Change format from /pubhtml to /pub?output=csv
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQh9oseGP-l6MnaLcY8fdaNs6xJA747DA0fTJ5itGIRrPWip7p01zMUo1ufWCGGq7WGA0_VsfmRPkjt/pub?output=csv';
         
         // Sample event data for demonstration
         const sampleEvents = [
@@ -367,6 +388,9 @@
                 processEvents(sampleEvents);
                 loadingElement.style.display = 'none';
             }
+            
+            // For debugging - remove in production
+            console.log("Attempting to fetch data from:", SHEET_URL);
         }
         
         function fetchEvents() {
@@ -379,7 +403,22 @@
             Papa.parse(SHEET_URL, {
                 download: true,
                 header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true,
                 complete: function(results) {
+                    console.log("Data berhasil diambil:", results);
+                    
+                    // Jika tiada data atau error
+                    if (!results.data || results.data.length === 0) {
+                        console.error("Tiada data diambil dari Google Sheets");
+                        loadingElement.textContent = 'Tiada data tersedia. Sila semak Google Sheets anda.';
+                        
+                        // Gunakan data sampel jika tiada data dari Google Sheets
+                        processEvents(sampleEvents);
+                        return;
+                    }
+                    
+                    // Process valid data
                     processEvents(results.data);
                     loadingElement.style.display = 'none';
                     lastUpdated = new Date();
@@ -388,20 +427,45 @@
                 error: function(error) {
                     console.error('Error fetching data:', error);
                     loadingElement.textContent = 'Ralat memuat data. Sila muat semula halaman.';
+                    
+                    // Gunakan data sampel jika gagal ambil data
+                    processEvents(sampleEvents);
                 }
             });
         }
         
-        function processEvents(events) {
-            allEvents = events;
+                function processEvents(events) {
+            // Handle empty or invalid data
+            if (!events || events.length === 0) {
+                console.error("No events data available");
+                return;
+            }
+            
+            console.log("Processing events:", events);
+            
+            // Clean up data: ignore empty rows and handle incorrect data formats
+            allEvents = events.filter(event => {
+                // Check if event has at least a title (minimum viable data)
+                return event && event.title && event.title.trim().length > 0;
+            });
+            
+            // Filter out closed events (only show "open" or events without status)
+            allEvents = allEvents.filter(event => {
+                // If event has status and it's "closed", filter it out
+                return !event.status || event.status.toLowerCase() !== "closed";
+            });
+            
+            console.log("Filtered events:", allEvents);
             
             // Extract unique categories
             categories = new Set(['semua']);
-            events.forEach(event => {
-                if (event.category) {
-                    categories.add(event.category);
+            allEvents.forEach(event => {
+                if (event.category && event.category.trim()) {
+                    categories.add(event.category.trim());
                 }
             });
+            
+            console.log("Categories found:", Array.from(categories));
             
             // Create category filters
             createCategoryFilters();
@@ -481,24 +545,61 @@
             const card = document.createElement('div');
             card.className = 'event-card';
             
-            // Create image or placeholder
-            const imageUrl = event.image || '/api/placeholder/400/320';
+            // Log event details for debugging
+            console.log("Creating card for event:", event);
+            
+            // Handle images
+            let imageUrl = '/api/placeholder/400/320'; // Default placeholder
+            
+            // Check if event has image URL
+            if (event.image && event.image.trim()) {
+                // If image is a complete URL starting with http/https, use it directly
+                if (event.image.toLowerCase().startsWith('http')) {
+                    imageUrl = event.image;
+                } 
+                // If it's a relative path or filename, you might need to adjust this
+                // based on where your images are stored
+                else {
+                    imageUrl = '/api/placeholder/400/320'; // Use placeholder if not a valid URL
+                }
+            }
+            
+            // Handle missing data with safe defaults
+            const title = event.title || 'Tiada Tajuk';
+            const category = event.category || 'Umum';
+            const date = event.date ? formatDate(event.date) : 'TBA';
+            const time = event.time || 'TBA';
+            const location = event.location || 'TBA';
+            const price = event.price || 'Percuma';
+            const description = event.description || 'Tiada deskripsi tersedia';
+            const registrationUrl = event.registrationUrl || '#';
+            
+            // Add a status badge if status is provided
+            let statusBadge = '';
+            if (event.status && event.status.toLowerCase() === 'open') {
+                statusBadge = '<span class="event-status open">Open</span>';
+            }
             
             card.innerHTML = `
-                <div class="event-image" style="background-image: url('${imageUrl}')"></div>
+                <div class="event-image" style="background-image: url('${imageUrl}')">
+                    ${statusBadge}
+                </div>
                 <div class="event-content">
-                    <span class="event-category">${event.category || 'Umum'}</span>
-                    <h3 class="event-title">${event.title}</h3>
+                    <span class="event-category">${category}</span>
+                    <h3 class="event-title">${title}</h3>
                     <div class="event-info">
-                        <p><i>📅</i> ${formatDate(event.date)}</p>
-                        <p><i>⏰</i> ${event.time}</p>
-                        <p><i>📍</i> ${event.location}</p>
+                        <p><i>📅</i> ${date}</p>
+                        <p><i>⏰</i> ${time}</p>
+                        <p><i>📍</i> ${location}</p>
                     </div>
-                    <div class="event-price">${event.price || 'Percuma'}</div>
-                    <p class="event-desc">${event.description}</p>
-                    <a href="${event.registrationUrl}" target="_blank" class="register-btn">Daftar Sekarang</a>
+                    <div class="event-price">${price}</div>
+                    <p class="event-desc">${description}</p>
+                    <a href="${registrationUrl}" target="_blank" class="register-btn">Daftar Sekarang</a>
                 </div>
             `;
+            
+            return card;
+        }
             
             return card;
         }

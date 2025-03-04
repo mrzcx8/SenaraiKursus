@@ -11,6 +11,8 @@
             --primary-color: #3498db;
             --secondary-color: #2ecc71;
             --accent-color: #f39c12;
+            --warning-color: #e74c3c;
+            --whatsapp-color: #25D366;
             --text-color: #333;
             --light-bg: #f5f5f5;
             --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -130,44 +132,6 @@
             background-color: #27ae60;
         }
         
-        .event-status.closed {
-            background-color: #e74c3c;
-        }
-        
-        .event-image {
-            height: 160px;
-            background-color: #f1f1f1;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-        }
-        
-        .closing-date {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: white;
-            background-color: rgba(0, 0, 0, 0.7);
-        }
-        
-        .event-requirements {
-            margin-top: 10px;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-left: 3px solid var(--primary-color);
-            border-radius: 3px;
-            font-size: 0.9rem;
-        }
-        
         .event-content {
             padding: 20px;
         }
@@ -182,11 +146,29 @@
             margin-bottom: 10px;
         }
         
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
         .event-title {
             font-size: 1.4rem;
             color: var(--primary-color);
-            margin-bottom: 10px;
             line-height: 1.3;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        .event-capacity {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            white-space: nowrap;
         }
         
         .event-info {
@@ -271,6 +253,81 @@
             font-weight: bold;
         }
         
+        .inquiry-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 40px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .inquiry-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .inquiry-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .whatsapp-btn {
+            grid-column: span 2;
+            padding: 15px;
+            background-color: var(--whatsapp-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .whatsapp-btn:hover {
+            background-color: #128C7E;
+        }
+        
+        .whatsapp-icon {
+            font-size: 1.4rem;
+        }
+        
         .no-events {
             grid-column: 1 / -1;
             text-align: center;
@@ -302,6 +359,18 @@
             h1 {
                 font-size: 2rem;
             }
+            
+            .inquiry-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            
+            .whatsapp-btn {
+                grid-column: span 1;
+            }
         }
         
         @media (max-width: 480px) {
@@ -311,6 +380,15 @@
             
             .category-filters {
                 justify-content: center;
+            }
+            
+            .event-header {
+                flex-direction: column;
+            }
+            
+            .event-capacity {
+                margin-top: 5px;
+                align-self: flex-start;
             }
         }
     </style>
@@ -324,15 +402,16 @@
     </header>
     
     <div class="container">
-        <!-- Maklumat umum sahaja - syarat spesifik akan ditunjukkan di setiap kad event -->
+        <!-- Syarat-syarat Penyertaan -->
         <div class="requirements">
-            <h2>Maklumat Umum:</h2>
+            <h2>Syarat-syarat Penyertaan:</h2>
             <ul>
-                <li>Setiap program ada versi percuma dan berbayar. Sila semak butiran kursus..</li>
-                <li>Peserta perlu mendaftar melalui borang pendaftaran sebelum tarikh tutup.</li>
-                <li>Tempat adalah terhad untuk setiap program.</li>
-                <li>Setiap program mungkin mempunyai syarat penyertaan yang berbeza.</li>
-                <li>Lihat maklumat terperinci dan syarat penyertaan di setiap program.</li>
+                <li>Setiap program ada versi percuma dan berbayar. Sila semak butiran kursus.</li>
+                <li>Terbuka kepada semua warganegara Malaysia berumur 18 tahun dan ke atas.</li>
+                <li>Peserta dikehendaki mendaftar melalui borang pendaftaran yang disediakan sebelum tarikh tutup.</li>
+                <li>Tempat adalah terhad dan akan diberi keutamaan kepada pendaftaran terawal.</li>
+                <li>Peserta perlu hadir tepat pada masanya untuk mengesahkan pendaftaran.</li>
+                <li>Sijil penyertaan hanya akan diberi kepada peserta yang hadir sepanjang program.</li>
             </ul>
         </div>
         
@@ -353,15 +432,42 @@
         <div class="last-update" id="lastUpdate">
             Kemas kini terakhir: <span id="updateTime">-</span>
         </div>
+        
+        <!-- Bahagian Pertanyaan -->
+        <div class="inquiry-section">
+            <h2>Ada Pertanyaan?</h2>
+            <div class="inquiry-form">
+                <div class="form-group">
+                    <label for="name">Nama</label>
+                    <input type="text" id="name" name="name" placeholder="Nama penuh anda">
+                </div>
+                <div class="form-group">
+                    <label for="phone">No. Telefon</label>
+                    <input type="text" id="phone" name="phone" placeholder="Contoh: 01xxxxxxxx">
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mel</label>
+                    <input type="email" id="email" name="email" placeholder="E-mel anda">
+                </div>
+                <div class="form-group">
+                    <label for="eventInterest">Kursus Yang Diminati</label>
+                    <input type="text" id="eventInterest" name="eventInterest" placeholder="Nama kursus/seminar">
+                </div>
+                <div class="form-group full-width">
+                    <label for="message">Pertanyaan</label>
+                    <textarea id="message" name="message" placeholder="Sila nyatakan pertanyaan anda..."></textarea>
+                </div>
+                <button type="button" class="whatsapp-btn" onclick="sendWhatsAppMessage()">
+                    <span class="whatsapp-icon">📱</span> Hantar Pertanyaan melalui WhatsApp
+                </button>
+            </div>
+        </div>
     </div>
     
     <script>
         // URL Google Sheets CSV - Google Sheets published as CSV URL
         // Change format from /pubhtml to /pub?output=csv
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQh9oseGP-l6MnaLcY8fdaNs6xJA747DA0fTJ5itGIRrPWip7p01zMUo1ufWCGGq7WGA0_VsfmRPkjt/pub?output=csv';
-        
-        // Default image to use when image URLs are missing or invalid
-        const DEFAULT_IMAGE = 'https://placehold.co/400x320/f1f1f1/999999?text=Tiada+Gambar';
         
         // Sample event data for demonstration
         const sampleEvents = [
@@ -373,11 +479,9 @@
                 location: "Online (Zoom)",
                 description: "Belajar asas-asas digital marketing untuk perniagaan anda. Topik meliputi SEO, Media Sosial, Email Marketing dan Google Ads.",
                 price: "Percuma",
-                image: "https://placehold.co/400x320/f1f1f1/999999?text=Digital+Marketing",
+                capacity: "30 orang",
                 registrationUrl: "https://forms.google.com/xyz",
-                status: "open",
-                closingDate: "2025-03-05",
-                requirements: "Pengalaman asas dalam pemasaran digital. Perlu membawa komputer riba sendiri. Peserta akan menerima e-sijil setelah selesai bengkel."
+                status: "open"
             },
             {
                 title: "Seminar Motivasi Kejayaan Dalam Bisnes",
@@ -387,11 +491,9 @@
                 location: "Hotel Grand Millennium, KL",
                 description: "Seminar motivasi khas untuk usahawan yang ingin mencapai kejayaan dalam perniagaan. Dapatkan tips dari usahawan berjaya.",
                 price: "Percuma",
-                image: "https://placehold.co/400x320/f1f1f1/999999?text=Motivasi",
+                capacity: "100 orang",
                 registrationUrl: "https://forms.google.com/abc",
-                status: "open",
-                closingDate: "2025-03-10",
-                requirements: "Terbuka kepada semua. Peserta perlu membawa kad pengenalan untuk pendaftaran. Tempat duduk adalah terhad kepada 100 orang sahaja."
+                status: "open"
             },
             {
                 title: "Webinar: Asas Perakaunan Untuk Peniaga Kecil",
@@ -401,11 +503,21 @@
                 location: "Online (Microsoft Teams)",
                 description: "Belajar cara menguruskan kewangan perniagaan anda dengan betul. Pengurusan aliran tunai, rekod perbelanjaan dan asas cukai.",
                 price: "Percuma",
-                image: "https://placehold.co/400x320/f1f1f1/999999?text=Perakaunan",
+                capacity: "50 orang",
                 registrationUrl: "https://forms.google.com/def",
-                status: "open",
-                closingDate: "2025-03-18",
-                requirements: "Perlu mempunyai perniagaan sendiri atau berminat untuk memulakan perniagaan. Peserta akan menerima templat excel percuma untuk pengurusan kewangan."
+                status: "open"
+            },
+            {
+                title: "Kursus Asas Membuat Kek dan Pastri",
+                category: "Bakery",
+                date: "2025-03-25",
+                time: "10:00 - 14:00",
+                location: "Pusat Komuniti Taman Melawati",
+                description: "Belajar asas membuat kek dan pastri daripada chef profesional. Teknik, bahan dan tips untuk hasil yang sempurna.",
+                price: "Percuma",
+                capacity: "50 orang",
+                registrationUrl: "https://forms.google.com/ghi",
+                status: "open"
             }
         ];
         
@@ -620,68 +732,25 @@
             const price = event.price || 'Percuma';
             const description = event.description || 'Tiada deskripsi tersedia';
             const registrationUrl = event.registrationUrl || '#';
-            const closingDate = event.closingDate ? formatDate(event.closingDate) : 'TBA';
-            const requirements = event.requirements || 'Tiada syarat khas. Terbuka kepada semua.';
-            
-            // IMPROVED IMAGE HANDLING
-            // Create the image element first
-            const imageElement = document.createElement('div');
-            imageElement.className = 'event-image';
+            const capacity = event.capacity || 'Terhad';
+            const closeDate = event.closeDate ? formatDate(event.closeDate) : 'TBA';
             
             // Add a status badge if status is provided
-            // Add status badge if status is provided
+            let statusHtml = '';
             if (event.status && event.status.toLowerCase() === 'open') {
-                const statusBadge = document.createElement('span');
-                statusBadge.className = 'event-status open';
-                statusBadge.textContent = 'Open';
-                imageElement.appendChild(statusBadge);
+                statusHtml = '<span class="event-status open">Open</span>';
             }
-            
-            // Add closing date badge
-            const closingBadge = document.createElement('span');
-            closingBadge.className = 'closing-date';
-            closingBadge.textContent = `Tutup: ${closingDate}`;
-            imageElement.appendChild(closingBadge);
-            
-            // Set up the image with better error handling
-            let imageUrl = DEFAULT_IMAGE;
-            
-            if (event.image && String(event.image).trim()) {
-                // Try to use the provided image URL
-                const imgUrl = String(event.image).trim();
-                
-                if (imgUrl.toLowerCase().startsWith('http')) {
-                    // Create a temporary image to test if it loads
-                    const tempImg = new Image();
-                    
-                    tempImg.onload = function() {
-                        // If image loads successfully, update the background
-                        imageElement.style.backgroundImage = `url('${imgUrl}')`;
-                    };
-                    
-                    tempImg.onerror = function() {
-                        // If image fails to load, use default
-                        console.warn(`Image failed to load: ${imgUrl}`);
-                        imageElement.style.backgroundImage = `url('${DEFAULT_IMAGE}')`;
-                    };
-                    
-                    // Start loading the image
-                    tempImg.src = imgUrl;
-                    
-                    // Initial setting (might be replaced if image fails)
-                    imageUrl = imgUrl;
-                }
-            }
-            
-            // Set initial background image
-            imageElement.style.backgroundImage = `url('${imageUrl}')`;
             
             // Create content element
             const contentElement = document.createElement('div');
             contentElement.className = 'event-content';
             contentElement.innerHTML = `
+                ${statusHtml}
                 <span class="event-category">${category}</span>
-                <h3 class="event-title">${title}</h3>
+                <div class="event-header">
+                    <h3 class="event-title">${title}</h3>
+                    <span class="event-capacity">${capacity}</span>
+                </div>
                 <div class="event-info">
                     <p><i>📅</i> ${date}</p>
                     <p><i>⏰</i> ${time}</p>
@@ -689,14 +758,10 @@
                 </div>
                 <div class="event-price">${price}</div>
                 <p class="event-desc">${description}</p>
-                <div class="event-requirements">
-                    <strong>Syarat Penyertaan:</strong> ${requirements}
-                </div>
                 <a href="${registrationUrl}" target="_blank" class="register-btn">Daftar Sekarang</a>
             `;
             
             // Add elements to card
-            card.appendChild(imageElement);
             card.appendChild(contentElement);
             
             return card;
@@ -748,6 +813,39 @@
                 console.error("Error formatting datetime:", e);
                 return date.toString();
             }
+        }
+        
+        function sendWhatsAppMessage() {
+            // Get form values
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const eventInterest = document.getElementById('eventInterest').value.trim();
+            const message = document.getElementById('message').value.trim();
+            
+            // Validate form
+            if (!name || !message) {
+                alert('Sila masukkan nama dan pertanyaan anda.');
+                return;
+            }
+            
+            // Prepare WhatsApp message
+            const adminPhone = '+601169887631'; // Your WhatsApp number
+            
+            let whatsappMessage = `🔔 *PERTANYAAN SEMINAR/KURSUS* 🔔\n\n`;
+            whatsappMessage += `*Nama:* ${name}\n`;
+            
+            if (phone) whatsappMessage += `*No. Telefon:* ${phone}\n`;
+            if (email) whatsappMessage += `*E-mel:* ${email}\n`;
+            if (eventInterest) whatsappMessage += `*Kursus Yang Diminati:* ${eventInterest}\n`;
+            
+            whatsappMessage += `\n*Pertanyaan:*\n${message}`;
+            
+            // Encode for URL
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+            
+            // Open WhatsApp with the prepared message
+            window.open(`https://wa.me/${adminPhone}?text=${encodedMessage}`, '_blank');
         }
         
         // Initialize by setting "All" category as active
